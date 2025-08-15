@@ -9,11 +9,11 @@ import 'module_config.dart';
 import 'module_lifecycle.dart';
 
 /// Base class for all modules
-abstract class FlutterModuleBase extends StatefulWidget {
+abstract class MiniAppModuleBase extends StatefulWidget {
   final ModuleConfig config;
   final void Function(String eventType, Map<String, dynamic> data)? onHostEvent;
 
-  const FlutterModuleBase({super.key, required this.config, this.onHostEvent});
+  const MiniAppModuleBase({super.key, required this.config, this.onHostEvent});
 
   /// Create the main widget for this module
   Widget buildModule(BuildContext context);
@@ -28,10 +28,10 @@ abstract class FlutterModuleBase extends StatefulWidget {
   bool canActivate() => true;
 
   @override
-  State<FlutterModuleBase> createState() => _FlutterModuleBaseState();
+  State<MiniAppModuleBase> createState() => _MiniAppModuleBaseState();
 }
 
-class _FlutterModuleBaseState extends State<FlutterModuleBase> with ModuleLifecycleMixin {
+class _MiniAppModuleBaseState extends State<MiniAppModuleBase> with ModuleLifecycleMixin {
   @override
   void onModuleInit() {
     HostCommunicationService.initialize(moduleId: widget.config.moduleId, onEvent: widget.onHostEvent);
