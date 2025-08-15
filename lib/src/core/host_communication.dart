@@ -21,8 +21,8 @@ class HostCommunicationService {
     }
   }
 
-  /// Send event to host application
-  static void sendEvent(String eventType, [Map<String, dynamic>? data]) {
+  /// Send communication to host application
+  static void sendEvent(String communicationType, [Map<String, dynamic>? data]) {
     if (!_isInitialized || _eventHandler == null) {
       if (kDebugMode) {
         print('⚠️ HostCommunicationService not initialized');
@@ -30,38 +30,42 @@ class HostCommunicationService {
       return;
     }
 
-    final eventData = {'moduleId': _moduleId, 'timestamp': DateTime.now().toIso8601String(), ...?data};
+    final communicationData = {'moduleId': _moduleId, 'timestamp': DateTime.now().toIso8601String(), ...?data};
 
     if (kDebugMode) {
-      print('📤 Sending event: $eventType from $_moduleId');
+      print('📤 Sending event: $communicationType from $_moduleId');
     }
 
-    _eventHandler!(eventType, eventData);
+    _eventHandler!(communicationType, communicationData);
   }
 
-  /// Predefined event methods
+  /// Predefined communication methods
   static void requestNavigation(String route, [Map<String, dynamic>? params]) {
-    sendEvent(ModuleEventType.navigationRequest, {'route': route, 'params': params ?? {}});
+    sendEvent(CommunicationType.navigationRequest, {'route': route, 'params': params ?? {}});
   }
 
   static void requestClose([String? reason]) {
-    sendEvent(ModuleEventType.closeRequest, {'reason': reason ?? 'user_action'});
+    sendEvent(CommunicationType.closeRequest, {'reason': reason ?? 'user_action'});
   }
 
   static void requestLogout([String? reason]) {
-    sendEvent(ModuleEventType.logoutRequest, {'reason': reason ?? 'user_action'});
+    sendEvent(CommunicationType.logoutRequest, {'reason': reason ?? 'user_action'});
   }
 
   static void reportError(String error, [String? context, StackTrace? stackTrace]) {
-    sendEvent(ModuleEventType.errorReport, {'error': error, 'context': context, 'stackTrace': stackTrace?.toString()});
+    sendEvent(CommunicationType.errorReport, {
+      'error': error,
+      'context': context,
+      'stackTrace': stackTrace?.toString(),
+    });
   }
 
   static void requestData(String dataType, [Map<String, dynamic>? params]) {
-    sendEvent(ModuleEventType.dataRequest, {'dataType': dataType, 'params': params ?? {}});
+    sendEvent(CommunicationType.dataRequest, {'dataType': dataType, 'params': params ?? {}});
   }
 
   static void notifyStateChange(Map<String, dynamic> state) {
-    sendEvent(ModuleEventType.stateChanged, state);
+    sendEvent(CommunicationType.stateChanged, state);
   }
 
   static void sendCustomEvent(String eventType, Map<String, dynamic> data) {
@@ -76,8 +80,8 @@ class HostCommunicationService {
   }
 }
 
-/// Predefined event types
-class ModuleEventType {
+/// Communication types
+class CommunicationType {
   static const String navigationRequest = 'navigation.request';
   static const String closeRequest = 'module.close_request';
   static const String logoutRequest = 'auth.logout_request';

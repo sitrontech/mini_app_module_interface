@@ -11,7 +11,7 @@ mixin MiniAppModuleLifecycleMixin<T extends StatefulWidget> on State<T> {
   @override
   void initState() {
     super.initState();
-    HostCommunicationService.sendEvent(ModuleEventType.ready);
+    HostCommunicationService.sendEvent(CommunicationType.ready);
     onModuleInit();
   }
 
@@ -24,7 +24,7 @@ mixin MiniAppModuleLifecycleMixin<T extends StatefulWidget> on State<T> {
   @override
   void dispose() {
     onModuleDispose();
-    HostCommunicationService.sendEvent(ModuleEventType.disposed);
+    HostCommunicationService.sendEvent(CommunicationType.disposed);
     super.dispose();
   }
 

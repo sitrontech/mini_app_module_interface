@@ -13,7 +13,6 @@ export 'src/core/module_base.dart';
 
 // Models exports
 export 'src/models/module_user.dart';
-export 'src/models/module_event.dart';
 export 'src/models/module_result.dart';
 
 // Services exports
