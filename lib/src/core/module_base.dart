@@ -31,7 +31,7 @@ abstract class MiniAppModuleBase extends StatefulWidget {
   State<MiniAppModuleBase> createState() => _MiniAppModuleBaseState();
 }
 
-class _MiniAppModuleBaseState extends State<MiniAppModuleBase> with ModuleLifecycleMixin {
+class _MiniAppModuleBaseState extends State<MiniAppModuleBase> with MiniAppModuleLifecycleMixin {
   @override
   void onModuleInit() {
     HostCommunicationService.initialize(moduleId: widget.config.moduleId, onEvent: widget.onHostEvent);

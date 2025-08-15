@@ -7,7 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'host_communication.dart';
 
 /// Mixin for module lifecycle management
-mixin ModuleLifecycleMixin<T extends StatefulWidget> on State<T> {
+mixin MiniAppModuleLifecycleMixin<T extends StatefulWidget> on State<T> {
   @override
   void initState() {
     super.initState();

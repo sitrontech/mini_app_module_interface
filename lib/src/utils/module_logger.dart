@@ -5,7 +5,7 @@
 import 'package:flutter/foundation.dart';
 
 /// Logger utility for modules
-class ModuleLogger {
+class MiniAppModuleLogger {
   static bool _enableLogging = kDebugMode;
   static String? _moduleId;
 

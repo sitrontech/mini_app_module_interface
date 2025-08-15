@@ -5,7 +5,7 @@
 import '../core/host_communication.dart';
 
 /// Navigation service for modules
-class ModuleNavigationService {
+class HostModuleNavigationService {
   static void goToRoute(String route, [Map<String, dynamic>? params]) {
     HostCommunicationService.requestNavigation(route, params);
   }
