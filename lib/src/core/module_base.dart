@@ -10,7 +10,7 @@ import 'module_lifecycle.dart';
 
 /// Base class for all modules
 abstract class MiniAppModuleBase extends StatefulWidget {
-  final ModuleConfig config;
+  final MiniAppModuleConfig config;
   final void Function(String eventType, Map<String, dynamic> data)? onHostEvent;
 
   const MiniAppModuleBase({super.key, required this.config, this.onHostEvent});

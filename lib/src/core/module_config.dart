@@ -5,7 +5,7 @@
 import 'dart:convert';
 
 /// Configuration class for modules
-class ModuleConfig {
+class MiniAppModuleConfig {
   final String moduleId;
   final String version;
   final String initialRoute;
@@ -15,7 +15,7 @@ class ModuleConfig {
   final bool enableDebugMode;
   final Duration sessionTimeout;
 
-  const ModuleConfig({
+  const MiniAppModuleConfig({
     required this.moduleId,
     this.version = '1.0.0',
     this.initialRoute = '/',
@@ -47,7 +47,7 @@ class ModuleConfig {
     'sessionTimeout': sessionTimeout.inMilliseconds,
   };
 
-  factory ModuleConfig.fromJson(Map<String, dynamic> json) => ModuleConfig(
+  factory MiniAppModuleConfig.fromJson(Map<String, dynamic> json) => MiniAppModuleConfig(
     moduleId: json['moduleId'] as String,
     version: json['version'] as String? ?? '1.0.0',
     initialRoute: json['initialRoute'] as String? ?? '/',
@@ -58,7 +58,7 @@ class ModuleConfig {
     sessionTimeout: Duration(milliseconds: json['sessionTimeout'] as int? ?? 7200000),
   );
 
-  ModuleConfig copyWith({
+  MiniAppModuleConfig copyWith({
     String? moduleId,
     String? version,
     String? initialRoute,
@@ -67,7 +67,7 @@ class ModuleConfig {
     Map<String, dynamic>? themeConfig,
     bool? enableDebugMode,
     Duration? sessionTimeout,
-  }) => ModuleConfig(
+  }) => MiniAppModuleConfig(
     moduleId: moduleId ?? this.moduleId,
     version: version ?? this.version,
     initialRoute: initialRoute ?? this.initialRoute,
