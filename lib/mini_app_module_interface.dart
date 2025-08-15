@@ -3,7 +3,7 @@
 // Main export file
 // ===============================================
 
-library flutter_module_interface;
+library mini_app_module_interface;
 
 // Core exports
 export 'src/core/module_config.dart';
