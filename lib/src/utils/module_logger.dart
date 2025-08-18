@@ -16,27 +16,27 @@ class MiniAppModuleLogger {
 
   static void debug(String message) {
     if (_enableLogging) {
-      print('🐛 [$_moduleId] $message');
+      debugPrint('🐛 [$_moduleId] $message');
     }
   }
 
   static void info(String message) {
     if (_enableLogging) {
-      print('ℹ️ [$_moduleId] $message');
+      debugPrint('ℹ️ [$_moduleId] $message');
     }
   }
 
   static void warning(String message) {
     if (_enableLogging) {
-      print('⚠️ [$_moduleId] $message');
+      debugPrint('⚠️ [$_moduleId] $message');
     }
   }
 
   static void error(String message, [dynamic error, StackTrace? stackTrace]) {
     if (_enableLogging) {
-      print('❌ [$_moduleId] $message');
-      if (error != null) print('Error: $error');
-      if (stackTrace != null) print('Stack: $stackTrace');
+      debugPrint('❌ [$_moduleId] $message');
+      if (error != null) debugPrint('Error: $error');
+      if (stackTrace != null) debugPrint('Stack: $stackTrace');
     }
   }
 }

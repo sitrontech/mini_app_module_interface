@@ -3,8 +3,6 @@
 // Main export file
 // ===============================================
 
-library mini_app_module_interface;
-
 // Core exports
 export 'src/core/module_config.dart';
 export 'src/core/host_communication.dart';

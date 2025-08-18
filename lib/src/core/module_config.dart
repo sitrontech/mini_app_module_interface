@@ -1,14 +1,13 @@
 // ===============================================
 // lib/src/core/module_config.dart
+// A data class that carries all the necessary configuration from the host app to the module
 // ===============================================
-
-import 'dart:convert';
 
 /// Configuration class for modules
 class MiniAppModuleConfig {
-  final String moduleId;
+  final String moduleId; // ID เฉพาะของโมดูล ซึ่งจำเป็นต้องระบุเสมอ
   final String version;
-  final String initialRoute;
+  final String initialRoute; // Route เริ่มต้นเมื่อโมดูลถูกเรียกใช้งาน
   final Map<String, dynamic> userData;
   final Map<String, dynamic> metadata;
   final Map<String, dynamic> themeConfig;
@@ -78,3 +77,7 @@ class MiniAppModuleConfig {
     sessionTimeout: sessionTimeout ?? this.sessionTimeout,
   );
 }
+
+// เป็นคลาสสำหรับการกำหนดค่า (configuration) สำหรับโมดูล (mini-app) ที่จะถูกส่งจากแอปพลิเคชันหลัก 
+// มันทำหน้าที่เป็นแบบจำลองข้อมูล (data model) ที่เก็บข้อมูลที่จำเป็นทั้งหมดสำหรับโมดูล 
+// เพื่อให้โมดูลสามารถเริ่มต้นและทำงานได้อย่างถูกต้องตามบริบทของแอปพลิเคชันหลัก
