@@ -1,3 +1,7 @@
+// ===============================================
+// mini_app_module_interface/lib/src/navigation/navigation_abstractions.dart
+// ===============================================
+
 import 'package:flutter/material.dart';
 
 /// Abstract navigation interface ที่ไม่ผูกติดกับ go_router

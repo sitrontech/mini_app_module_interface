@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
-import 'clean_shortcut_interfaces.dart';
+import '../shortcut/clean_shortcut_interfaces.dart';
 
 /// Clean shortcut button ที่ไม่ผูกติดกับ specific navigation
 class CleanShortcutButton extends StatelessWidget {

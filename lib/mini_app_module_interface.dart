@@ -13,13 +13,18 @@ export 'src/core/module_base.dart';
 export 'src/navigation/navigation_handler.dart';
 export 'src/navigation/host_navigator_provider.dart';
 export 'src/navigation/navigation_service.dart';
+export 'src/navigation/navigation_abstractions.dart';
 
 // Communication exports
 
-export 'src/core/navigation_abstractions.dart';
 export 'src/core/clean_mini_app_base.dart';
-export 'src/core/clean_shortcut_widgets.dart';
-export 'src/core/initializable_page_interface.dart';
+export 'src/pages/initializable_page_interface.dart';
+
+// Shortcut export
+export 'src/shortcut/clean_shortcut_interfaces.dart';
+
+// Widgets exports
+export 'src/widgets/clean_shortcut_widgets.dart';
 
 // Models exports
 export 'src/models/module_user.dart';

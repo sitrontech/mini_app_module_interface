@@ -1,3 +1,7 @@
+// ===============================================
+// mini_app_module_interface/lib/src/shortcut/clean_shortcut_interfaces.dart
+// ===============================================
+
 import 'package:flutter/material.dart';
 
 /// Clean shortcut interface ที่ไม่ผูกติดกับ specific navigation

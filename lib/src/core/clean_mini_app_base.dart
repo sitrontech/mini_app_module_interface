@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../mini_app_module_interface.dart';
-import 'clean_shortcut_interfaces.dart';
-import 'clean_shortcut_widgets.dart';
-import 'navigation_abstractions.dart';
 
 /// Clean base class ที่ไม่ผูกติดกับ specific navigation library
 abstract class CleanMiniAppModuleBase extends StatelessWidget implements MiniAppShortcutProvider {
