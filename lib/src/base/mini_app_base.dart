@@ -1,227 +1,303 @@
-// mini_app_module_interface/lib/src/base/mini_app_base.dart
-
 // ===============================================
+// lib/src/base/mini_app_base.dart
 // MINI APP BASE CLASS
 // ===============================================
+//
+// ไฟล์นี้เป็น Base Class หลักสำหรับสร้าง Mini App Module
+// ทำหน้าที่เป็นพื้นฐานที่ Mini App ทุกตัวต้อง extends มาใช้งาน
+// โดยมีการกำหนดโครงสร้างและ interface ที่จำเป็นสำหรับการทำงานร่วมกับ Host App
 
 import 'package:flutter/material.dart';
-import '../shortcut/shortcut_interfaces.dart';
-import '../navigation/navigation_abstractions.dart';
 import '../core/module_config.dart';
 import '../core/host_communication.dart';
 import '../core/module_lifecycle.dart';
 
-/// Base class for mini app modules
-abstract class MiniAppModuleBase extends StatefulWidget implements MiniAppShortcutProvider {
-  // พารามิเตอร์ที่จำเป็นสำหรับทุกโมดูล
-  // ทำหน้าที่เก็บข้อมูลการตั้งค่าทั้งหมดที่แอปพลิเคชันหลักส่งมาให้โมดูล เช่น ID ของโมดูล ข้อมูลผู้ใช้ และการตั้งค่าธีม
+/// Base class สำหรับ mini app modules ทั้งหมด
+///
+/// คลาสนี้เป็น abstract class ที่กำหนดโครงสร้างพื้นฐานและ interface
+/// ที่ mini app ทุกตัวต้องมี เพื่อให้สามารถทำงานในระบบ modular ได้อย่างถูกต้อง
+///
+/// Mini app ที่สร้างขึ้นจะต้อง extends คลาสนี้และ implement method ที่จำเป็น
+abstract class MiniAppModuleBase extends StatefulWidget {
+  // ============================================
+  // Properties และ Configuration
+  // ============================================
+
+  /// Configuration object ที่เก็บข้อมูลการตั้งค่าทั้งหมดของ module
+  ///
+  /// [config] จะถูกส่งมาจาก Host Application และประกอบด้วย:
+  /// - moduleId: รหัสประจำตัวของ module
+  /// - userData: ข้อมูลผู้ใช้งาน (ถ้ามี)
+  /// - theme: การตั้งค่าธีมของแอป
+  /// - apiEndpoints: endpoints สำหรับเชื่อมต่อ API
+  /// - permissions: สิทธิ์ที่ module ได้รับอนุญาต
+  /// - additionalConfig: การตั้งค่าเพิ่มเติมอื่นๆ
   final MiniAppModuleConfig config;
 
-  // callback ที่ให้โมดูลสามารถรับฟังและจัดการกับเหตุการณ์ต่างๆ ที่แอปพลิเคชันหลักส่งมาได้
+  /// Callback function สำหรับรับ event จาก Host Application
+  ///
+  /// [onHostEvent] เป็น optional callback ที่ใช้สำหรับ:
+  /// - รับการแจ้งเตือนจาก host (notifications)
+  /// - รับคำสั่งควบคุมจาก host (commands)
+  /// - รับข้อมูลที่ host ส่งมาให้ (data updates)
+  ///
+  /// Parameters:
+  /// - String: ชื่อ event ที่เกิดขึ้น
+  /// - Map<String, dynamic>: ข้อมูลที่มากับ event
+  ///
+  /// หาก onHostEvent เป็น null แสดงว่า module กำลังทำงานใน standalone mode
   final void Function(String, Map<String, dynamic>)? onHostEvent;
 
   const MiniAppModuleBase({super.key, required this.config, this.onHostEvent});
 
-  @override
+  // ============================================
+  // Abstract Methods ที่ต้อง implement
+  // ============================================
+
+  /// ระบุ ID เฉพาะของ module
+  ///
+  /// ต้องเป็น ID ที่ไม่ซ้ำกับ module อื่นในระบบ
+  /// ใช้สำหรับการระบุตัวตนและการจัดการ routing
+  ///
+  /// ตัวอย่าง: 'payment_module', 'user_profile', 'shopping_cart'
   String get moduleId;
 
-  @override
+  /// Path หลักสำหรับ routing ไปยัง module นี้
+  ///
+  /// Host app จะใช้ path นี้ในการ navigate มายัง module
+  /// ควรเริ่มต้นด้วย '/' และใช้ชื่อที่สื่อความหมาย
+  ///
+  /// ตัวอย่าง: '/payment', '/profile', '/cart'
   String get modulePath;
 
-  @override
+  /// Map ของ routes ภายใน module
+  ///
+  /// กำหนด routes ทั้งหมดที่มีภายใน module นี้
+  /// Key = route name, Value = route path
+  ///
+  /// ตัวอย่าง:
+  /// ```dart
+  /// {
+  ///   'home': '/payment/home',
+  ///   'history': '/payment/history',
+  ///   'settings': '/payment/settings',
+  /// }
+  /// ```
   Map<String, String> get availableRoutes;
 
+  /// Metadata ของ module สำหรับแสดงข้อมูลและการตั้งค่า
+  ///
+  /// ควรประกอบด้วย:
+  /// - name: ชื่อที่แสดงผล
+  /// - version: เวอร์ชันของ module
+  /// - description: คำอธิบาย
+  /// - author: ผู้พัฒนา
+  /// - primaryColor: สีหลัก (เป็น int value)
+  /// - icon: ไอคอนของ module
   Map<String, dynamic> get moduleMetadata;
 
+  /// รายการ permissions ที่ module ต้องการ
+  ///
+  /// ระบุสิทธิ์ที่จำเป็นสำหรับการทำงานของ module
+  /// Host app จะตรวจสอบและอนุญาตตามความเหมาะสม
+  ///
+  /// ตัวอย่าง: ['camera', 'location', 'storage', 'notifications']
   List<String> get requiredPermissions;
 
+  /// ตรวจสอบว่า module สามารถเริ่มทำงานได้หรือไม่
+  ///
+  /// ใช้สำหรับตรวจสอบเงื่อนไขก่อนเริ่มต้น module เช่น:
+  /// - ตรวจสอบ permissions
+  /// - ตรวจสอบ configuration ที่จำเป็น
+  /// - ตรวจสอบ dependencies
+  ///
+  /// Return: true ถ้าสามารถเริ่มทำงานได้, false ถ้าไม่สามารถ
   bool canActivate();
 
-  // Navigation methods
-  List<MiniAppRouteConfig> buildRoutes();
-
-  /// เมธอดที่โมดูลจะต้อง override เพื่อสร้างและคืนค่าโครงสร้าง UI หลักของตัวเอง
+  /// สร้าง UI หลักของ module
+  ///
+  /// Method นี้จะถูกเรียกเมื่อ module พร้อมแสดงผล
+  /// ต้อง return Widget ที่เป็น UI หลักของ module
+  ///
+  /// ควรจัดการ:
+  /// - การสร้าง MaterialApp หรือ widget tree หลัก
+  /// - การตั้งค่า theme และ localization
+  /// - การจัดการ routing ภายใน module
   Widget buildModule(BuildContext context);
 
-  MiniAppNavigationDelegate createNavigationDelegate();
+  // ============================================
+  // Helper Properties (มีค่า default)
+  // ============================================
 
-  // Shortcut implementations
-  @override
-  String get displayName => moduleMetadata['name'] ?? moduleId;
-
-  @override
-  IconData get defaultIcon {
-    final iconData = moduleMetadata['icon'] as IconData?;
-    return iconData ?? Icons.apps;
-  }
-
+  /// ดึงค่าสีหลักจาก metadata
+  ///
+  /// จะพยายามอ่านค่า 'primaryColor' จาก moduleMetadata
+  /// และแปลงเป็น Color object
+  /// Return null ถ้าไม่มีการกำหนดสี
   Color? get primaryColor {
     final colorValue = moduleMetadata['primaryColor'] as int?;
     return colorValue != null ? Color(colorValue) : null;
   }
 
-  @override
-  Widget createShortcutButton({
-    String? title,
-    IconData? icon,
-    String? targetRoute,
-    Map<String, dynamic>? extraData,
-    VoidCallback? onPressed,
-    ShortcutStyle? style,
-  }) {
-    return CleanShortcutButton(
-      action: ShortcutNavigationAction(
-        moduleId: moduleId,
-        modulePath: modulePath,
-        targetRoute: targetRoute,
-        extraData: extraData,
-        onPressed: onPressed,
-      ),
-      title: title ?? 'Open $displayName',
-      icon: icon ?? defaultIcon,
-      style: style ?? ShortcutStyle(backgroundColor: primaryColor, textColor: Colors.white),
-    );
+  /// ชื่อที่ใช้แสดงผลของ module
+  ///
+  /// จะใช้ค่าจาก metadata['name'] ถ้ามี
+  /// ถ้าไม่มีจะใช้ moduleId แทน
+  String get displayName => moduleMetadata['name'] ?? moduleId;
+
+  /// ไอคอน default ของ module
+  ///
+  /// จะใช้ไอคอนจาก metadata['icon'] ถ้ามี
+  /// ถ้าไม่มีจะใช้ Icons.apps เป็นค่า default
+  IconData get defaultIcon {
+    final iconData = moduleMetadata['icon'] as IconData?;
+    return iconData ?? Icons.apps;
   }
 
-  @override
-  Widget createShortcutCard({
-    required String title,
-    String? subtitle,
-    required IconData icon,
-    String? targetRoute,
-    Map<String, dynamic>? extraData,
-    VoidCallback? onPressed,
-  }) {
-    return CleanShortcutCard(
-      action: ShortcutNavigationAction(
-        moduleId: moduleId,
-        modulePath: modulePath,
-        targetRoute: targetRoute,
-        extraData: extraData,
-        onPressed: onPressed,
-      ),
-      title: title,
-      subtitle: subtitle,
-      icon: icon,
-    );
-  }
-
-  @override
-  Widget createShortcutFAB({
-    String? heroTag,
-    String? targetRoute,
-    Map<String, dynamic>? extraData,
-    VoidCallback? onPressed,
-    IconData? icon,
-  }) {
-    return Builder(
-      builder: (context) => FloatingActionButton(
-        heroTag: heroTag ?? '${moduleId}_shortcut_fab',
-        onPressed: () {
-          final action = ShortcutNavigationAction(
-            moduleId: moduleId,
-            modulePath: modulePath,
-            targetRoute: targetRoute,
-            extraData: extraData,
-            onPressed: onPressed,
-          );
-          action.execute(context);
-        },
-        child: Icon(icon ?? defaultIcon),
-      ),
-    );
-  }
-
-  @override
-  List<Widget> createShortcutCollection() {
-    final shortcuts = <Widget>[createShortcutButton(title: 'Open $displayName')];
-
-    if (availableRoutes.containsKey('home')) {
-      shortcuts.addAll([
-        const SizedBox(height: 8),
-        createShortcutButton(
-          title: '$displayName Home',
-          targetRoute: availableRoutes['home'],
-          style: ShortcutStyle(backgroundColor: Colors.green),
-        ),
-      ]);
-    }
-
-    return shortcuts;
-  }
-
-  @override
-  Widget createShortcutGrid({int crossAxisCount = 2}) {
-    final shortcuts = <Widget>[];
-
-    availableRoutes.forEach((routeName, routePath) {
-      shortcuts.add(
-        createShortcutCard(
-          title: '$displayName ${routeName.toUpperCase()}',
-          subtitle: 'Access $routeName',
-          icon: defaultIcon,
-          targetRoute: routePath,
-        ),
-      );
-    });
-
-    return GridView.count(
-      crossAxisCount: crossAxisCount,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: shortcuts,
-    );
-  }
+  /// ตรวจสอบว่า module กำลังทำงานแบบ standalone หรือไม่
+  ///
+  /// Standalone mode คือการทำงานโดยไม่มี host application
+  /// จะเป็น true เมื่อ onHostEvent เป็น null
+  ///
+  /// ใช้สำหรับ:
+  /// - การทดสอบ module แยกต่างหาก
+  /// - การพัฒนา module โดยไม่ต้องรัน host app
+  /// - การปรับพฤติกรรมตาม mode การทำงาน
+  bool get isStandaloneMode => onHostEvent == null;
 
   @override
   State<MiniAppModuleBase> createState() => _MiniAppModuleBaseState();
 }
 
-// มีการใช้ MiniAppModuleLifecycleMixin เพื่อจัดการวงจรชีวิตของโมดูล ทำให้มั่นใจได้ว่าการสื่อสารกับแอปพลิเคชันหลักจะเกิดขึ้นอย่างถูกต้องในแต่ละช่วงเวลา เช่น เมื่อโมดูลเริ่มต้นหรือถูกทำลาย
+// ============================================
+// State Class สำหรับจัดการ lifecycle
+// ============================================
+
+/// State class ที่จัดการ lifecycle และการ render ของ module
+///
+/// ใช้ MiniAppModuleLifecycleMixin เพื่อจัดการ:
+/// - การเริ่มต้น module (initialization)
+/// - การทำลาย module (disposal)
+/// - การจัดการ error
+/// - การสื่อสารกับ host
 class _MiniAppModuleBaseState extends State<MiniAppModuleBase> with MiniAppModuleLifecycleMixin {
+  /// Called เมื่อ module เริ่มต้นทำงาน
+  ///
+  /// จะทำการ:
+  /// 1. ตรวจสอบว่ามี onHostEvent หรือไม่ (ไม่ใช่ standalone mode)
+  /// 2. Initialize HostCommunicationService สำหรับการสื่อสารกับ host
+  /// 3. ลงทะเบียน module กับ host
   @override
   void onModuleInit() {
-    HostCommunicationService.initialize(moduleId: widget.config.moduleId, onEvent: widget.onHostEvent);
+    // ถ้ามี callback สำหรับรับ event จาก host
+    // ให้ทำการ initialize service สำหรับการสื่อสาร
+    if (widget.onHostEvent != null) {
+      HostCommunicationService.initialize(
+        moduleId: widget.config.moduleId, // ส่ง ID ของ module
+        onEvent: widget.onHostEvent, // ส่ง callback function
+      );
+    }
   }
 
+  /// Called เมื่อ module ถูกทำลาย
+  ///
+  /// จะทำการ:
+  /// 1. ยกเลิกการลงทะเบียนกับ host
+  /// 2. ทำความสะอาด resources ที่ใช้
+  /// 3. ปิดการเชื่อมต่อต่างๆ
   @override
   void onModuleDispose() {
-    HostCommunicationService.dispose();
+    // ถ้ามีการเชื่อมต่อกับ host
+    // ให้ทำการ dispose service
+    if (widget.onHostEvent != null) {
+      HostCommunicationService.dispose();
+    }
   }
 
+  /// Build method หลักที่จัดการการ render module
+  ///
+  /// ขั้นตอนการทำงาน:
+  /// 1. ตรวจสอบว่า module สามารถ activate ได้หรือไม่
+  /// 2. ถ้าได้ ให้เรียก buildModule() เพื่อสร้าง UI
+  /// 3. ถ้าไม่ได้ หรือเกิด error ให้แสดง error widget
   @override
   Widget build(BuildContext context) {
+    // ตรวจสอบว่า module สามารถเริ่มทำงานได้หรือไม่
     if (!widget.canActivate()) {
       return _buildErrorWidget('Module cannot activate with current configuration');
     }
 
+    // พยายามสร้าง UI ของ module
     try {
+      // เรียก buildModule ที่ subclass implement ไว้
       return widget.buildModule(context);
     } catch (error, stackTrace) {
-      HostCommunicationService.reportError(error.toString(), 'module_build', stackTrace);
+      // ถ้าเกิด error ระหว่างการสร้าง UI
+
+      // ถ้าไม่ใช่ standalone mode ให้รายงาน error ไปยัง host
+      if (widget.onHostEvent != null) {
+        HostCommunicationService.reportError(
+          error.toString(), // error message
+          'module_build', // error type
+          stackTrace, // stack trace สำหรับ debugging
+        );
+      }
+
+      // แสดง error widget พร้อมข้อความ error
       return _buildErrorWidget('Error building module: $error');
     }
   }
 
+  /// สร้าง Widget สำหรับแสดง error
+  ///
+  /// จะแสดง:
+  /// - ไอคอน error
+  /// - ข้อความ error
+  /// - ปุ่ม "Go Back" (ถ้าไม่ใช่ standalone mode)
+  ///
+  /// [message] ข้อความ error ที่ต้องการแสดง
   Widget _buildErrorWidget(String message) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Error - ${widget.config.moduleId}'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => HostCommunicationService.requestClose(),
+    return MaterialApp(
+      // แสดงชื่อ module ใน title bar
+      title: 'Error - ${widget.config.moduleId}',
+      home: Scaffold(
+        // AppBar พร้อมชื่อ module
+        appBar: AppBar(
+          title: Text('Error - ${widget.config.moduleId}'),
+
+          // ถ้าเป็น standalone mode จะไม่มีปุ่ม back
+          // ถ้าไม่ใช่ จะมีปุ่ม back สำหรับกลับไป host
+          leading: widget.isStandaloneMode
+              ? null // ไม่แสดงปุ่ม back
+              : IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  // เมื่อกดปุ่ม back จะส่ง request ให้ host ปิด module
+                  onPressed: () => HostCommunicationService.requestClose(),
+                ),
         ),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            ElevatedButton(onPressed: () => HostCommunicationService.requestClose(), child: const Text('Go Back')),
-          ],
+        // Body แสดงรายละเอียด error
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // ไอคอน error ขนาดใหญ่สีแดง
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+
+              const SizedBox(height: 16),
+
+              // ข้อความ error
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
+              ),
+
+              const SizedBox(height: 16),
+
+              // ปุ่ม "Go Back" (แสดงเฉพาะเมื่อไม่ใช่ standalone mode)
+              if (!widget.isStandaloneMode)
+                ElevatedButton(onPressed: () => HostCommunicationService.requestClose(), child: const Text('Go Back')),
+            ],
+          ),
         ),
       ),
     );
