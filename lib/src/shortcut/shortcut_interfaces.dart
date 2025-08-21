@@ -380,57 +380,6 @@ class ShortcutStyle {
 }
 
 // ============================================
-// Navigation Action Helper
-// ============================================
-
-/// ✅ Navigation Action ที่ใช้ MiniAppNavigationHandler เท่านั้น
-///
-/// Helper class สำหรับ encapsulate navigation action
-/// ทำให้สามารถเก็บและ execute navigation ได้ภายหลัง
-///
-/// Use cases:
-/// - Delayed navigation
-/// - Navigation queue
-/// - Conditional navigation
-///
-/// ตัวอย่างการใช้:
-/// ```dart
-/// final action = NavigationAction(
-///   handler: navigationHandler,
-///   targetRoute: '/payment/checkout',
-///   extraData: {'orderId': '123'},
-/// );
-///
-/// // Execute later
-/// action.execute(context);
-/// ```
-class NavigationAction {
-  /// Navigation handler ที่จะใช้
-  final MiniAppNavigationHandler handler;
-
-  /// Target route ภายใน module
-  final String? targetRoute;
-
-  /// ข้อมูลเพิ่มเติม
-  final Map<String, dynamic>? extraData;
-
-  /// Callback ก่อน navigation
-  final VoidCallback? onPressed;
-
-  /// Constructor
-  const NavigationAction({required this.handler, this.targetRoute, this.extraData, this.onPressed});
-
-  /// Execute navigation action
-  ///
-  /// เรียกใช้เมื่อต้องการทำ navigation
-  /// จะเรียก onPressed ก่อน แล้วใช้ handler navigate
-  void execute(BuildContext context) {
-    onPressed?.call();
-    handler.navigateToMiniApp(context: context, targetRoute: targetRoute, extraData: extraData);
-  }
-}
-
-// ============================================
 // สรุปการใช้งาน Shortcut Interfaces
 // ============================================
 //
@@ -473,4 +422,3 @@ class NavigationAction {
 // ```
 //
 // System นี้ทำให้การสร้าง shortcuts มีมาตรฐาน
-// พร้อม navigation ที่ reliable และ error handling ที่ดี
