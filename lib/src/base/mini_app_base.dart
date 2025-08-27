@@ -60,7 +60,7 @@ abstract class MiniAppModuleBase extends StatefulWidget {
   /// ใช้สำหรับการระบุตัวตนและการจัดการ routing
   ///
   /// ตัวอย่าง: 'payment_module', 'user_profile', 'shopping_cart'
-  String get moduleId;
+  // String get moduleId;
 
   /// Path หลักสำหรับ routing ไปยัง module นี้
   ///
@@ -68,7 +68,7 @@ abstract class MiniAppModuleBase extends StatefulWidget {
   /// ควรเริ่มต้นด้วย '/' และใช้ชื่อที่สื่อความหมาย
   ///
   /// ตัวอย่าง: '/payment', '/profile', '/cart'
-  String get modulePath;
+  // String get modulePath;
 
   /// Map ของ routes ภายใน module
   ///
@@ -83,7 +83,7 @@ abstract class MiniAppModuleBase extends StatefulWidget {
   ///   'settings': '/payment/settings',
   /// }
   /// ```
-  Map<String, String> get availableRoutes;
+  // Map<String, String> get availableRoutes;
 
   /// Metadata ของ module สำหรับแสดงข้อมูลและการตั้งค่า
   ///
@@ -94,7 +94,7 @@ abstract class MiniAppModuleBase extends StatefulWidget {
   /// - author: ผู้พัฒนา
   /// - primaryColor: สีหลัก (เป็น int value)
   /// - icon: ไอคอนของ module
-  Map<String, dynamic> get moduleMetadata;
+  // Map<String, dynamic> get moduleMetadata;
 
   /// รายการ permissions ที่ module ต้องการ
   ///
@@ -102,7 +102,7 @@ abstract class MiniAppModuleBase extends StatefulWidget {
   /// Host app จะตรวจสอบและอนุญาตตามความเหมาะสม
   ///
   /// ตัวอย่าง: ['camera', 'location', 'storage', 'notifications']
-  List<String> get requiredPermissions;
+  // List<String> get requiredPermissions;
 
   /// ตรวจสอบว่า module สามารถเริ่มทำงานได้หรือไม่
   ///
@@ -134,25 +134,25 @@ abstract class MiniAppModuleBase extends StatefulWidget {
   /// จะพยายามอ่านค่า 'primaryColor' จาก moduleMetadata
   /// และแปลงเป็น Color object
   /// Return null ถ้าไม่มีการกำหนดสี
-  Color? get primaryColor {
-    final colorValue = moduleMetadata['primaryColor'] as int?;
-    return colorValue != null ? Color(colorValue) : null;
-  }
+  // Color? get primaryColor {
+  //   final colorValue = moduleMetadata['primaryColor'] as int?;
+  //   return colorValue != null ? Color(colorValue) : null;
+  // }
 
   /// ชื่อที่ใช้แสดงผลของ module
   ///
   /// จะใช้ค่าจาก metadata['name'] ถ้ามี
   /// ถ้าไม่มีจะใช้ moduleId แทน
-  String get displayName => moduleMetadata['name'] ?? moduleId;
+  // String get displayName => moduleMetadata['name'] ?? moduleId;
 
   /// ไอคอน default ของ module
   ///
   /// จะใช้ไอคอนจาก metadata['icon'] ถ้ามี
   /// ถ้าไม่มีจะใช้ Icons.apps เป็นค่า default
-  IconData get defaultIcon {
-    final iconData = moduleMetadata['icon'] as IconData?;
-    return iconData ?? Icons.apps;
-  }
+  // IconData get defaultIcon {
+  //   final iconData = moduleMetadata['icon'] as IconData?;
+  //   return iconData ?? Icons.apps;
+  // }
 
   /// ตรวจสอบว่า module กำลังทำงานแบบ standalone หรือไม่
   ///
