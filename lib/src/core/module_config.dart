@@ -165,17 +165,17 @@ class MiniAppModuleConfig {
   // Helper Methods - Quick Access
   // ============================================
 
+  /// ตรวจสอบว่ามีข้อมูล accessToken หรือไม่
+  ///
+  /// Return: true ถ้า hostAppAuthConfig.accessToken มีข้อมูล
+  /// ใช้สำหรับตรวจสอบว่า user login แล้วหรือยัง
+  bool get hasAccessToken => hostAppAuthConfig!.hasAccessToken;
+
   /// ตรวจสอบว่ามีข้อมูล user หรือไม่
   ///
   /// Return: true ถ้า userData มีข้อมูล
   /// ใช้สำหรับตรวจสอบว่า user login แล้วหรือยัง
   bool get hasUser => hostAppUser != null;
-
-  /// ดึงชื่อผู้ใช้ (nullable)
-  ///
-  /// Return: ชื่อผู้ใช้ หรือ null ถ้าไม่มี
-  /// Safe casting ด้วย as String?
-  String? get userName => hostAppUser?.username;
 
   /// ดึง ID ผู้ใช้ (nullable)
   ///
