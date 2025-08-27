@@ -8,6 +8,10 @@
 // เปรียบเสมือน "กล่องข้อมูล" ที่บรรจุการตั้งค่าและข้อมูลที่จำเป็นทั้งหมด
 // สำหรับการทำงานของ module ในบริบทของ host app
 
+import 'auth_config.dart';
+import 'theme_config.dart';
+import 'user_config.dart';
+
 /// Configuration class สำหรับ mini app modules
 ///
 /// คลาสนี้เป็น Immutable Data Class ที่ใช้เก็บข้อมูลการตั้งค่าทั้งหมด
@@ -51,10 +55,6 @@ class MiniAppModuleConfig {
   /// Default: '/'
   final String initialRoute;
 
-  // ============================================
-  // Data Maps (ข้อมูลแบบ Map)
-  // ============================================
-
   /// ข้อมูลผู้ใช้งานปัจจุบัน
   ///
   /// เก็บข้อมูลของผู้ใช้ที่ login อยู่ เช่น:
@@ -69,18 +69,10 @@ class MiniAppModuleConfig {
   /// - แสดงข้อมูลผู้ใช้
   /// - ปรับการทำงานตามสิทธิ์
   /// - Personalization
-  final Map<String, dynamic> userData;
+  final HostAppUser? hostAppUser;
 
-  /// Metadata เพิ่มเติมของ module
-  ///
-  /// ข้อมูลทั่วไปที่ host ต้องการส่งให้ module เช่น:
-  /// - 'apiEndpoint': URL ของ API server
-  /// - 'environment': dev/staging/production
-  /// - 'features': feature flags ที่เปิดใช้งาน
-  /// - 'limits': ข้อจำกัดต่างๆ (max file size, rate limits)
-  /// - 'locale': ภาษาและ locale settings
-  /// - 'timezone': timezone ของผู้ใช้
-  final Map<String, dynamic> metadata;
+  /// Authentication configuration จาก host app
+  final HostAppAuthConfig? hostAppAuthConfig;
 
   /// การตั้งค่า Theme และ UI
   ///
@@ -94,7 +86,22 @@ class MiniAppModuleConfig {
   /// - 'spacing': ระยะห่างพื้นฐาน
   ///
   /// ทำให้ module มีหน้าตาสอดคล้องกับ host app
-  final Map<String, dynamic> themeConfig;
+  final HostAppThemeConfig? hostAppThemeConfig;
+
+  // ============================================
+  // Data Maps (ข้อมูลแบบ Map)
+  // ============================================
+
+  /// Metadata เพิ่มเติมของ module
+  ///
+  /// ข้อมูลทั่วไปที่ host ต้องการส่งให้ module เช่น:
+  /// - 'apiEndpoint': URL ของ API server
+  /// - 'environment': dev/staging/production
+  /// - 'features': feature flags ที่เปิดใช้งาน
+  /// - 'limits': ข้อจำกัดต่างๆ (max file size, rate limits)
+  /// - 'locale': ภาษาและ locale settings
+  /// - 'timezone': timezone ของผู้ใช้
+  final Map<String, dynamic> metadata;
 
   // ============================================
   // Settings (การตั้งค่าทั่วไป)
@@ -138,9 +145,10 @@ class MiniAppModuleConfig {
     required this.moduleId, // บังคับต้องระบุ
     this.version = '1.0.0', // มีค่า default
     this.initialRoute = '/', // มีค่า default
-    this.userData = const {}, // const empty map for performance
+    this.hostAppUser,
+    this.hostAppAuthConfig,
+    this.hostAppThemeConfig,
     this.metadata = const {}, // const empty map for performance
-    this.themeConfig = const {}, // const empty map for performance
     this.enableDebugMode = false, // default ปิด debug
     this.sessionTimeout = const Duration(hours: 2), // default 2 ชม.
   });
@@ -153,24 +161,50 @@ class MiniAppModuleConfig {
   ///
   /// Return: true ถ้า userData มีข้อมูล
   /// ใช้สำหรับตรวจสอบว่า user login แล้วหรือยัง
-  bool get hasUser => userData.isNotEmpty;
+  bool get hasUser => hostAppUser != null;
 
   /// ดึงชื่อผู้ใช้ (nullable)
   ///
   /// Return: ชื่อผู้ใช้ หรือ null ถ้าไม่มี
   /// Safe casting ด้วย as String?
-  String? get userName => userData['name'] as String?;
-
-  /// ดึงอีเมลผู้ใช้ (nullable)
-  ///
-  /// Return: อีเมล หรือ null ถ้าไม่มี
-  String? get userEmail => userData['email'] as String?;
+  String? get userName => hostAppUser?.username;
 
   /// ดึง ID ผู้ใช้ (nullable)
   ///
   /// Return: User ID หรือ null ถ้าไม่มี
   /// ใช้สำหรับการอ้างอิงผู้ใช้ใน API calls
-  String? get userId => userData['id'] as String?;
+  String? get userId => hostAppUser?.id;
+
+  // ============================================
+  // Theme Helper Methods
+  // ============================================
+
+  /// ตรวจสอบว่ามี theme configuration หรือไม่
+  bool get hasThemeConfig => hostAppThemeConfig != null;
+
+  /// ดึงสีหลักจาก theme (hex value)
+  int get primaryColor => hostAppThemeConfig?.primaryColorValue ?? 0xFF2196F3;
+
+  /// ดึงสีพื้นหลังจาก theme
+  int get backgroundColor => hostAppThemeConfig?.backgroundColorValue ?? 0xFFFFFFFF;
+
+  /// ดึงสีข้อความจาก theme
+  int get textColor => hostAppThemeConfig?.textColorValue ?? 0xFF000000;
+
+  /// ตรวจสอบว่าเป็น dark mode หรือไม่
+  bool get isDarkMode => hostAppThemeConfig?.isDarkMode ?? false;
+
+  /// ดึงขนาด font พื้นฐาน
+  double get fontSize => hostAppThemeConfig?.fontSizeValue ?? 14.0;
+
+  /// ดึงระยะห่างพื้นฐาน
+  double get spacing => hostAppThemeConfig?.spacingValue ?? 8.0;
+
+  /// ดึง border radius พื้นฐาน
+  double get borderRadius => hostAppThemeConfig?.borderRadiusValue ?? 8.0;
+
+  /// ดึงชื่อ font family
+  String get fontFamily => hostAppThemeConfig?.fontFamily ?? 'Roboto';
 
   // ============================================
   // Generic Getter Methods
@@ -190,25 +224,6 @@ class MiniAppModuleConfig {
   /// Return: ค่าที่ cast เป็น type T หรือ null
   T? getMetadata<T>(String key) => metadata[key] as T?;
 
-  /// ดึงค่าจาก themeConfig แบบ type-safe
-  ///
-  /// ตัวอย่างการใช้:
-  /// ```dart
-  /// Color? primary = Color(config.getThemeValue<int>('primaryColor') ?? 0xFF000000);
-  /// bool? darkMode = config.getThemeValue<bool>('darkMode');
-  /// double? fontSize = config.getThemeValue<double>('fontSize');
-  /// ```
-  T? getThemeValue<T>(String key) => themeConfig[key] as T?;
-
-  /// ดึงค่าจาก userData แบบ type-safe
-  ///
-  /// ตัวอย่างการใช้:
-  /// ```dart
-  /// String? role = config.getUserData<String>('role');
-  /// Map<String, dynamic>? prefs = config.getUserData<Map<String, dynamic>>('preferences');
-  /// ```
-  T? getUserData<T>(String key) => userData[key] as T?;
-
   // ============================================
   // Serialization Methods
   // ============================================
@@ -225,9 +240,10 @@ class MiniAppModuleConfig {
     'moduleId': moduleId,
     'version': version,
     'initialRoute': initialRoute,
-    'userData': userData,
+    'hostAppUserData': hostAppUser,
+    'hostAppAuthConfig': hostAppAuthConfig,
+    'hostAppThemeConfig': hostAppThemeConfig,
     'metadata': metadata,
-    'themeConfig': themeConfig,
     'enableDebugMode': enableDebugMode,
     'sessionTimeout': sessionTimeout.inMilliseconds, // แปลงเป็น int
   };
@@ -247,9 +263,14 @@ class MiniAppModuleConfig {
     moduleId: json['moduleId'] as String, // required field
     version: json['version'] as String? ?? '1.0.0', // with default
     initialRoute: json['initialRoute'] as String? ?? '/',
-    userData: json['userData'] as Map<String, dynamic>? ?? {},
+    hostAppUser: json['hostAppUser'] != null ? HostAppUser.fromJson(json['hostAppUser'] as Map<String, dynamic>) : null,
+    hostAppAuthConfig: json['hostAppAuthConfig'] != null
+        ? HostAppAuthConfig.fromJson(json['hostAppAuthConfig'] as Map<String, dynamic>)
+        : null,
+    hostAppThemeConfig: json['hostAppThemeConfig'] != null
+        ? HostAppThemeConfig.fromJson(json['hostAppThemeConfig'] as Map<String, dynamic>)
+        : null,
     metadata: json['metadata'] as Map<String, dynamic>? ?? {},
-    themeConfig: json['themeConfig'] as Map<String, dynamic>? ?? {},
     enableDebugMode: json['enableDebugMode'] as bool? ?? false,
     sessionTimeout: Duration(milliseconds: json['sessionTimeout'] as int? ?? 7200000),
   );
@@ -285,18 +306,20 @@ class MiniAppModuleConfig {
     String? moduleId,
     String? version,
     String? initialRoute,
-    Map<String, dynamic>? userData,
+    HostAppUser? hostAppUser,
+    HostAppAuthConfig? hostAppAuthConfig,
+    HostAppThemeConfig? hostAppThemeConfig,
     Map<String, dynamic>? metadata,
-    Map<String, dynamic>? themeConfig,
     bool? enableDebugMode,
     Duration? sessionTimeout,
   }) => MiniAppModuleConfig(
     moduleId: moduleId ?? this.moduleId,
     version: version ?? this.version,
     initialRoute: initialRoute ?? this.initialRoute,
-    userData: userData ?? this.userData,
+    hostAppUser: hostAppUser ?? this.hostAppUser,
+    hostAppAuthConfig: hostAppAuthConfig ?? this.hostAppAuthConfig,
     metadata: metadata ?? this.metadata,
-    themeConfig: themeConfig ?? this.themeConfig,
+    hostAppThemeConfig: hostAppThemeConfig ?? this.hostAppThemeConfig,
     enableDebugMode: enableDebugMode ?? this.enableDebugMode,
     sessionTimeout: sessionTimeout ?? this.sessionTimeout,
   );
