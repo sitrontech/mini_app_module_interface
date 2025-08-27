@@ -6,7 +6,6 @@
 // Core exports
 export 'src/core/module_config.dart';
 export 'src/core/auth_config.dart';
-export 'src/core/theme_config.dart';
 export 'src/core/user_config.dart';
 export 'src/core/module_lifecycle.dart';
 export 'src/core/host_communication.dart';

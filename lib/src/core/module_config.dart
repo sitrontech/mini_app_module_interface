@@ -8,8 +8,9 @@
 // เปรียบเสมือน "กล่องข้อมูล" ที่บรรจุการตั้งค่าและข้อมูลที่จำเป็นทั้งหมด
 // สำหรับการทำงานของ module ในบริบทของ host app
 
+import 'package:flutter/material.dart';
+
 import 'auth_config.dart';
-import 'theme_config.dart';
 import 'user_config.dart';
 
 /// Configuration class สำหรับ mini app modules
@@ -86,7 +87,11 @@ class MiniAppModuleConfig {
   /// - 'spacing': ระยะห่างพื้นฐาน
   ///
   /// ทำให้ module มีหน้าตาสอดคล้องกับ host app
-  final HostAppThemeConfig? hostAppThemeConfig;
+  final ThemeData? hostAppThemeData;
+  final ThemeData? hostAppDarkThemeData;
+  final ThemeMode? hostAppThemeMode;
+
+  final Locale? hostAppLocale;
 
   // ============================================
   // Data Maps (ข้อมูลแบบ Map)
@@ -147,7 +152,10 @@ class MiniAppModuleConfig {
     this.initialRoute = '/', // มีค่า default
     this.hostAppUser,
     this.hostAppAuthConfig,
-    this.hostAppThemeConfig,
+    this.hostAppThemeData,
+    this.hostAppDarkThemeData,
+    this.hostAppThemeMode,
+    this.hostAppLocale,
     this.metadata = const {}, // const empty map for performance
     this.enableDebugMode = false, // default ปิด debug
     this.sessionTimeout = const Duration(hours: 2), // default 2 ชม.
@@ -180,31 +188,15 @@ class MiniAppModuleConfig {
   // ============================================
 
   /// ตรวจสอบว่ามี theme configuration หรือไม่
-  bool get hasThemeConfig => hostAppThemeConfig != null;
+  bool get hasThemeData => hostAppThemeData != null;
+  bool get hasDarkThemeData => hostAppDarkThemeData != null;
+  bool get hasThemeMode => hostAppThemeMode != null;
 
-  /// ดึงสีหลักจาก theme (hex value)
-  int get primaryColor => hostAppThemeConfig?.primaryColorValue ?? 0xFF2196F3;
+  // ============================================
+  // Localization Helper Methods
+  // ============================================
 
-  /// ดึงสีพื้นหลังจาก theme
-  int get backgroundColor => hostAppThemeConfig?.backgroundColorValue ?? 0xFFFFFFFF;
-
-  /// ดึงสีข้อความจาก theme
-  int get textColor => hostAppThemeConfig?.textColorValue ?? 0xFF000000;
-
-  /// ตรวจสอบว่าเป็น dark mode หรือไม่
-  bool get isDarkMode => hostAppThemeConfig?.isDarkMode ?? false;
-
-  /// ดึงขนาด font พื้นฐาน
-  double get fontSize => hostAppThemeConfig?.fontSizeValue ?? 14.0;
-
-  /// ดึงระยะห่างพื้นฐาน
-  double get spacing => hostAppThemeConfig?.spacingValue ?? 8.0;
-
-  /// ดึง border radius พื้นฐาน
-  double get borderRadius => hostAppThemeConfig?.borderRadiusValue ?? 8.0;
-
-  /// ดึงชื่อ font family
-  String get fontFamily => hostAppThemeConfig?.fontFamily ?? 'Roboto';
+  bool get hasLocale => hostAppLocale != null;
 
   // ============================================
   // Generic Getter Methods
@@ -236,16 +228,18 @@ class MiniAppModuleConfig {
   /// - Logging และ debugging
   ///
   /// Note: sessionTimeout แปลงเป็น milliseconds เพื่อเก็บใน JSON
+  /// - ThemeData, ThemeMode, Locale ไม่ถูก serialize เพราะไม่มี built-in toJson()
+  /// - ข้อมูล UI/Theme จะถูกส่งผ่าน runtime constructor แทน
   Map<String, dynamic> toJson() => {
     'moduleId': moduleId,
     'version': version,
     'initialRoute': initialRoute,
-    'hostAppUserData': hostAppUser,
-    'hostAppAuthConfig': hostAppAuthConfig,
-    'hostAppThemeConfig': hostAppThemeConfig,
+    'hostAppUser': hostAppUser?.toJson(),
+    'hostAppAuthConfig': hostAppAuthConfig?.toJson(),
     'metadata': metadata,
     'enableDebugMode': enableDebugMode,
     'sessionTimeout': sessionTimeout.inMilliseconds, // แปลงเป็น int
+    // Note: ข้าม theme/locale data - จะถูกส่งผ่าน constructor
   };
 
   /// สร้าง instance จาก JSON Map
@@ -253,11 +247,20 @@ class MiniAppModuleConfig {
   /// Factory constructor สำหรับ deserialization
   /// มีการจัดการ null safety และค่า default อย่างเหมาะสม
   ///
+  /// Note: ThemeData, ThemeMode, Locale จะเป็น null เมื่อ deserialize
+  /// ต้องส่งผ่าน constructor หรือ copyWith() แยกต่างหาก
+  ///
   /// ตัวอย่างการใช้:
   /// ```dart
   /// final jsonString = await storage.getString('config');
   /// final json = jsonDecode(jsonString);
   /// final config = MiniAppModuleConfig.fromJson(json);
+  ///
+  /// // เพิ่ม theme/locale ภายหลัง
+  /// final fullConfig = baseConfig.copyWith(
+  ///   hostAppThemeData: currentTheme,
+  ///   hostAppLocale: currentLocale,
+  /// );
   /// ```
   factory MiniAppModuleConfig.fromJson(Map<String, dynamic> json) => MiniAppModuleConfig(
     moduleId: json['moduleId'] as String, // required field
@@ -267,9 +270,7 @@ class MiniAppModuleConfig {
     hostAppAuthConfig: json['hostAppAuthConfig'] != null
         ? HostAppAuthConfig.fromJson(json['hostAppAuthConfig'] as Map<String, dynamic>)
         : null,
-    hostAppThemeConfig: json['hostAppThemeConfig'] != null
-        ? HostAppThemeConfig.fromJson(json['hostAppThemeConfig'] as Map<String, dynamic>)
-        : null,
+    // Theme/Locale จะเป็น null - ต้องตั้งค่าใหม่ภายหลัง
     metadata: json['metadata'] as Map<String, dynamic>? ?? {},
     enableDebugMode: json['enableDebugMode'] as bool? ?? false,
     sessionTimeout: Duration(milliseconds: json['sessionTimeout'] as int? ?? 7200000),
@@ -308,7 +309,10 @@ class MiniAppModuleConfig {
     String? initialRoute,
     HostAppUser? hostAppUser,
     HostAppAuthConfig? hostAppAuthConfig,
-    HostAppThemeConfig? hostAppThemeConfig,
+    ThemeData? hostAppThemeData,
+    ThemeData? hostAppDarkThemeData,
+    ThemeMode? hostAppThemeMode,
+    Locale? hostAppLocale,
     Map<String, dynamic>? metadata,
     bool? enableDebugMode,
     Duration? sessionTimeout,
@@ -319,7 +323,10 @@ class MiniAppModuleConfig {
     hostAppUser: hostAppUser ?? this.hostAppUser,
     hostAppAuthConfig: hostAppAuthConfig ?? this.hostAppAuthConfig,
     metadata: metadata ?? this.metadata,
-    hostAppThemeConfig: hostAppThemeConfig ?? this.hostAppThemeConfig,
+    hostAppThemeData: hostAppThemeData ?? this.hostAppThemeData,
+    hostAppDarkThemeData: hostAppDarkThemeData ?? this.hostAppDarkThemeData,
+    hostAppThemeMode: hostAppThemeMode ?? this.hostAppThemeMode,
+    hostAppLocale: hostAppLocale ?? this.hostAppLocale,
     enableDebugMode: enableDebugMode ?? this.enableDebugMode,
     sessionTimeout: sessionTimeout ?? this.sessionTimeout,
   );
