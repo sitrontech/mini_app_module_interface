@@ -56,6 +56,9 @@ class MiniAppModuleConfig {
   /// Default: '/'
   final String initialRoute;
 
+  final String? displayName;
+  final IconData? defaultIcon;
+
   /// ข้อมูลผู้ใช้งานปัจจุบัน
   ///
   /// เก็บข้อมูลของผู้ใช้ที่ login อยู่ เช่น:
@@ -150,6 +153,8 @@ class MiniAppModuleConfig {
     required this.moduleId, // บังคับต้องระบุ
     this.version = '1.0.0', // มีค่า default
     this.initialRoute = '/', // มีค่า default
+    this.displayName,
+    this.defaultIcon,
     this.hostAppUser,
     this.hostAppAuthConfig,
     this.hostAppThemeData,

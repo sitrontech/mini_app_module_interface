@@ -9,6 +9,8 @@
 // และรองรับทั้ง default buttons และ custom widgets
 
 import 'package:flutter/material.dart';
+
+import '../core/module_config.dart';
 import '../navigation/navigation_handler.dart';
 
 // ============================================
@@ -55,13 +57,13 @@ abstract class MiniAppShortcutProvider {
   /// - ระบุ target module ใน navigation
   /// - Logging และ debugging
   /// - การจัดการ routing
-  String get moduleId;
+  // String get moduleId;
 
   /// Path หลักของ module
   ///
   /// Route path ที่ใช้ navigate ไป module
   /// ตัวอย่าง: '/payment', '/profile'
-  String get modulePath;
+  // String get modulePath;
 
   /// ชื่อที่แสดงให้ผู้ใช้เห็น
   ///
@@ -90,7 +92,7 @@ abstract class MiniAppShortcutProvider {
   ///   'settings': '/payment/settings'
   /// }
   /// ```
-  Map<String, String> get availableRoutes;
+  // Map<String, String> get availableRoutes;
 
   // ============================================
   // Navigation Handler (Required)
@@ -185,6 +187,32 @@ abstract class MiniAppShortcutProvider {
 /// }
 /// ```
 abstract class BaseMiniAppShortcutProvider implements MiniAppShortcutProvider {
+  final MiniAppModuleConfig config;
+
+  BaseMiniAppShortcutProvider({required this.config});
+
+  // ✅ Concrete implementation ของ displayName
+  @override
+  String get displayName {
+    // ลองหาจาก metadata หลายแหล่ง
+    final sources = [config.metadata['name'], config.metadata['displayName'], config.metadata['title']];
+
+    for (final source in sources) {
+      if (source is String && source.trim().isNotEmpty) {
+        return source.trim();
+      }
+    }
+
+    // fallback เป็น moduleId (แปลงเป็น user-friendly)
+    return config.moduleId;
+  }
+
+  @override
+  IconData get defaultIcon {
+    final iconFromMetadata = config.defaultIcon;
+    return iconFromMetadata ?? Icons.apps; // รับประกันว่าจะไม่เป็น null
+  }
+
   /// ✅ Default navigation handler implementation
   ///
   /// Provide navigation handler อัตโนมัติ
@@ -194,7 +222,7 @@ abstract class BaseMiniAppShortcutProvider implements MiniAppShortcutProvider {
   /// แต่ต้องเป็น subclass ของ MiniAppNavigationHandler
   @override
   MiniAppNavigationHandler get navigationHandler =>
-      BaseMiniAppNavigationHandler(moduleId: moduleId, displayName: displayName);
+      BaseMiniAppNavigationHandler(moduleId: config.moduleId, displayName: displayName);
 
   /// ✅ Protected method สำหรับ navigation (ใช้ navigationHandler เท่านั้น)
   ///
