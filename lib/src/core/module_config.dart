@@ -135,7 +135,7 @@ class MiniAppModuleConfig {
   /// - Session management
   ///
   /// Default: 2 ชั่วโมง
-  final Duration sessionTimeout;
+  // final Duration sessionTimeout;
 
   // ============================================
   // Constructor
@@ -158,7 +158,7 @@ class MiniAppModuleConfig {
     this.hostAppLocale,
     this.metadata = const {}, // const empty map for performance
     this.enableDebugMode = false, // default ปิด debug
-    this.sessionTimeout = const Duration(hours: 2), // default 2 ชม.
+    // this.sessionTimeout = const Duration(hours: 2), // default 2 ชม.
   });
 
   // ============================================
@@ -238,7 +238,7 @@ class MiniAppModuleConfig {
     'hostAppAuthConfig': hostAppAuthConfig?.toJson(),
     'metadata': metadata,
     'enableDebugMode': enableDebugMode,
-    'sessionTimeout': sessionTimeout.inMilliseconds, // แปลงเป็น int
+    // 'sessionTimeout': sessionTimeout.inMilliseconds, // แปลงเป็น int
     // Note: ข้าม theme/locale data - จะถูกส่งผ่าน constructor
   };
 
@@ -273,7 +273,7 @@ class MiniAppModuleConfig {
     // Theme/Locale จะเป็น null - ต้องตั้งค่าใหม่ภายหลัง
     metadata: json['metadata'] as Map<String, dynamic>? ?? {},
     enableDebugMode: json['enableDebugMode'] as bool? ?? false,
-    sessionTimeout: Duration(milliseconds: json['sessionTimeout'] as int? ?? 7200000),
+    // sessionTimeout: Duration(milliseconds: json['sessionTimeout'] as int? ?? 7200000),
   );
 
   // ============================================
@@ -315,7 +315,7 @@ class MiniAppModuleConfig {
     Locale? hostAppLocale,
     Map<String, dynamic>? metadata,
     bool? enableDebugMode,
-    Duration? sessionTimeout,
+    // Duration? sessionTimeout,
   }) => MiniAppModuleConfig(
     moduleId: moduleId ?? this.moduleId,
     version: version ?? this.version,
@@ -328,7 +328,7 @@ class MiniAppModuleConfig {
     hostAppThemeMode: hostAppThemeMode ?? this.hostAppThemeMode,
     hostAppLocale: hostAppLocale ?? this.hostAppLocale,
     enableDebugMode: enableDebugMode ?? this.enableDebugMode,
-    sessionTimeout: sessionTimeout ?? this.sessionTimeout,
+    // sessionTimeout: sessionTimeout ?? this.sessionTimeout,
   );
 }
 
