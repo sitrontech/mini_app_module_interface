@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // ===============================================
 // lib/src/shortcut/shortcut_interfaces.dart
 // SIMPLIFIED SHORTCUT INTERFACES WITH ENFORCED NAVIGATION
@@ -10,7 +11,6 @@
 
 import 'package:flutter/material.dart';
 
-import '../core/module_config.dart';
 import '../navigation/navigation_handler.dart';
 
 // ============================================
@@ -71,13 +71,13 @@ abstract class MiniAppShortcutProvider {
   /// - Label ของ shortcut button
   /// - Title ใน dialogs
   /// - User-facing messages
-  String get displayName;
+  // String get displayName;
 
   /// Icon default ของ module
   ///
   /// Icon ที่จะใช้เมื่อไม่ได้ระบุ icon เฉพาะ
   /// ตัวอย่าง: Icons.payment, Icons.person
-  IconData get defaultIcon;
+  // IconData get defaultIcon;
 
   /// Routes ที่มีภายใน module
   ///
@@ -187,31 +187,35 @@ abstract class MiniAppShortcutProvider {
 /// }
 /// ```
 abstract class BaseMiniAppShortcutProvider implements MiniAppShortcutProvider {
-  final MiniAppModuleConfig config;
+  // final MiniAppModuleConfig config;
+  final String moduleId;
+  final String displayName;
 
-  BaseMiniAppShortcutProvider({required this.config});
+  BaseMiniAppShortcutProvider({required this.moduleId, required this.displayName});
+
+  // BaseMiniAppShortcutProvider({required this.config});
 
   // ✅ Concrete implementation ของ displayName
-  @override
-  String get displayName {
-    // ลองหาจาก metadata หลายแหล่ง
-    final sources = [config.metadata['name'], config.metadata['displayName'], config.metadata['title']];
+  // @override
+  // String get displayName {
+  //   // ลองหาจาก metadata หลายแหล่ง
+  //   final sources = [config.metadata['name'], config.metadata['displayName'], config.metadata['title']];
 
-    for (final source in sources) {
-      if (source is String && source.trim().isNotEmpty) {
-        return source.trim();
-      }
-    }
+  //   for (final source in sources) {
+  //     if (source is String && source.trim().isNotEmpty) {
+  //       return source.trim();
+  //     }
+  //   }
 
-    // fallback เป็น moduleId (แปลงเป็น user-friendly)
-    return config.moduleId;
-  }
+  //   // fallback เป็น moduleId (แปลงเป็น user-friendly)
+  //   return config.moduleId;
+  // }
 
-  @override
-  IconData get defaultIcon {
-    final iconFromMetadata = config.defaultIcon;
-    return iconFromMetadata ?? Icons.apps; // รับประกันว่าจะไม่เป็น null
-  }
+  // @override
+  // IconData get defaultIcon {
+  //   final iconFromMetadata = config.defaultIcon;
+  //   return iconFromMetadata ?? Icons.apps; // รับประกันว่าจะไม่เป็น null
+  // }
 
   /// ✅ Default navigation handler implementation
   ///
@@ -220,9 +224,12 @@ abstract class BaseMiniAppShortcutProvider implements MiniAppShortcutProvider {
   ///
   /// Subclasses สามารถ override เพื่อใช้ custom handler
   /// แต่ต้องเป็น subclass ของ MiniAppNavigationHandler
+  // @override
+  // MiniAppNavigationHandler get navigationHandler =>
+  //     BaseMiniAppNavigationHandler(moduleId: config.moduleId, displayName: displayName);
   @override
   MiniAppNavigationHandler get navigationHandler =>
-      BaseMiniAppNavigationHandler(moduleId: config.moduleId, displayName: displayName);
+      BaseMiniAppNavigationHandler(moduleId: moduleId, displayName: displayName);
 
   /// ✅ Protected method สำหรับ navigation (ใช้ navigationHandler เท่านั้น)
   ///
@@ -277,7 +284,7 @@ abstract class BaseMiniAppShortcutProvider implements MiniAppShortcutProvider {
         return _buildDefaultButton(
           context,
           title: title ?? displayName, // ใช้ displayName ถ้าไม่ระบุ title
-          icon: icon ?? defaultIcon, // ใช้ defaultIcon ถ้าไม่ระบุ icon
+          icon: icon ?? Icons.apps, // ใช้ defaultIcon ถ้าไม่ระบุ icon
           targetRoute: targetRoute,
           extraData: extraData,
           onPressed: onPressed,
